@@ -18,6 +18,11 @@ if (!cached) {
 }
 
 async function dbConnect() {
+  // If we're already connected to a database (like in tests), return that connection
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
+  }
+
   if (cached.conn) {
     return cached.conn;
   }

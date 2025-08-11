@@ -24,6 +24,11 @@ A community-driven coupon-sharing platform where users can discover, share, and 
 - **External APIs**: Clearbit Logo API (brand logos)
 - **Analytics**: PostHog / Vercel Analytics
 
+## 📚 Documentation
+
+- **[Backend Documentation](BACKEND.md)** - Complete API documentation, database schema, and backend architecture
+- **Frontend Documentation** - This README focuses on user-facing features and frontend development
+
 ## 📦 Installation
 
 1. Clone the repository:
@@ -68,7 +73,7 @@ npm run dev
 couponcodeclub/
 ├── src/
 │   ├── app/           # Next.js App Router pages
-│   │   ├── api/       # API routes
+│   │   ├── api/       # API routes (see BACKEND.md)
 │   │   ├── coupons/   # Coupon-related pages
 │   │   ├── user/      # User profile pages
 │   │   └── leaderboard/ # Leaderboard page
@@ -77,6 +82,7 @@ couponcodeclub/
 │   ├── models/       # MongoDB/Mongoose models
 │   └── types/        # TypeScript type definitions
 ├── public/           # Static assets
+├── BACKEND.md        # Backend documentation
 └── package.json      # Dependencies and scripts
 ```
 
@@ -125,23 +131,9 @@ couponcodeclub/
 - `npm run lint` - Run ESLint
 - `npm run lint:fix` - Fix ESLint errors
 - `npm run type-check` - Run TypeScript type checking
-
-## 📊 Database Schema
-
-### Users
-
-- username, email, avatarUrl, joinDate
-- rankScore, totalUpvotes, totalDownvotes
-
-### Coupons
-
-- brand, code, description, tags[]
-- link, expiresAt, submitterId
-- createdAt, upvotes, downvotes, lastVerifiedAt
-
-### Votes
-
-- couponId, userId (optional), worked (boolean), createdAt
+- `npm test` - Run tests
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:coverage` - Run tests with coverage
 
 ## 🔒 Security Features
 
@@ -167,6 +159,14 @@ couponcodeclub/
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+### Development Guidelines
+
+- Follow TypeScript best practices
+- Write tests for new features
+- Update documentation as needed
+- Follow the existing code style
+- Check both frontend and backend documentation
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -178,3 +178,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 ⭐ Star this repository if you find it helpful!
+
+**📖 For detailed backend documentation, see [BACKEND.md](BACKEND.md)**
