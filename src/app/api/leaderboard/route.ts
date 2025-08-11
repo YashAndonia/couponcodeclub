@@ -37,10 +37,7 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return sendSuccessResponse({
-      leaderboard,
-      totalUsers: leaderboard.length
-    });
+    return sendSuccessResponse(leaderboard);
 
   } catch (error) {
     const apiError = handleApiError(error);

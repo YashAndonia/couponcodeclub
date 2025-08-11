@@ -99,24 +99,43 @@ export default function AddCouponPage() {
     setIsSubmitting(true);
     
     try {
-      // TODO: Implement API call to submit coupon
-      console.log('Submitting coupon:', formData);
-      
+      // Prepare data for API
+      const submitData = {
+        brand: formData.brand.trim(),
+        code: formData.code.trim(),
+        description: formData.description.trim(),
+        tags: formData.tags,
+        link: formData.link?.trim() || undefined,
+        expiresAt: formData.expiresAt || undefined,
+      };
+
+      // Submit to API
+      const response = await fetch('/api/coupons', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(submitData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to submit coupon');
+      }
+
       // Analytics
       captureEvent(ANALYTICS_EVENTS.COUPON_SUBMITTED, {
         brand: formData.brand,
         hasExpiration: !!formData.expiresAt,
         tagCount: formData.tags.length,
       });
-
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Redirect to coupons page
-      router.push('/coupons?submitted=true');
+      // Redirect to home page with success message
+      router.push('/?submitted=true');
     } catch (error) {
       console.error('Failed to submit coupon:', error);
-      alert('Failed to submit coupon. Please try again.');
+      alert(error instanceof Error ? error.message : 'Failed to submit coupon. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

@@ -81,8 +81,8 @@ export async function GET(
     };
 
     return sendSuccessResponse({
-      brand: decodedBrandName,
-      stats: {
+      brand: {
+        name: decodedBrandName,
         ...stats,
         avgSuccessRate: Math.round(stats.avgSuccessRate * 100)
       },

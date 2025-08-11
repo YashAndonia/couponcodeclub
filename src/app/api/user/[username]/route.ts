@@ -63,7 +63,7 @@ export async function GET(
     };
 
     return sendSuccessResponse({
-      profile,
+      user: profile,
       coupons,
       pagination: {
         page,

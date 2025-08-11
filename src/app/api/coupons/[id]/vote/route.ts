@@ -81,7 +81,8 @@ export async function POST(
       updateData.lastVerifiedAt = new Date();
     }
 
-    await Coupon.findByIdAndUpdate(id, updateData);
+    const updatedCoupon = await Coupon.findByIdAndUpdate(id, updateData, { new: true })
+      .populate('submitterId', 'username avatarUrl');
 
     // Update user stats if authenticated
     if (userId) {
@@ -93,7 +94,7 @@ export async function POST(
       });
     }
 
-    return sendSuccessResponse({ success: true });
+    return sendSuccessResponse(updatedCoupon);
 
   } catch (error) {
     const apiError = handleApiError(error);
