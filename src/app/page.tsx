@@ -49,197 +49,98 @@ const mockCoupons: CouponWithStats[] = [
   {
     _id: '3',
     brand: 'Target',
-    code: 'WEEKEND25',
-    description: '25% off weekend sale items',
-    tags: ['retail', 'weekend', 'sale'],
-    expiresAt: new Date('2024-01-20'),
+    code: 'WEEKLY25',
+    description: '25% off home goods',
+    tags: ['home', 'decor', 'furniture'],
     submitterId: 'user3',
-    submitter: { username: 'targetfan', avatarUrl: undefined },
-    upvotes: 78,
+    submitter: { username: 'couponpro', avatarUrl: undefined },
+    upvotes: 80,
     downvotes: 12,
     createdAt: new Date('2024-01-13'),
     updatedAt: new Date('2024-01-13'),
     successRate: 87,
-    totalVotes: 90,
+    totalVotes: 92,
     isExpired: false,
     freshnessIndicator: 'Verified 3 hours ago',
   },
   {
     _id: '4',
-    brand: 'Adidas',
-    code: 'SPORTS15',
-    description: '15% off all sports equipment',
-    tags: ['sports', 'equipment', 'adidas'],
+    brand: 'Best Buy',
+    code: 'TECH15',
+    description: '15% off electronics',
+    tags: ['electronics', 'tech', 'gadgets'],
     submitterId: 'user4',
-    submitter: { username: 'fitnessguru', avatarUrl: undefined },
-    upvotes: 34,
+    submitter: { username: 'techguru', avatarUrl: undefined },
+    upvotes: 65,
     downvotes: 8,
     createdAt: new Date('2024-01-12'),
     updatedAt: new Date('2024-01-12'),
-    successRate: 81,
-    totalVotes: 42,
-    isExpired: false,
-    freshnessIndicator: 'Verified 5 hours ago',
-  },
-  {
-    _id: '5',
-    brand: 'Best Buy',
-    code: 'TECH20',
-    description: '20% off electronics over $100',
-    tags: ['electronics', 'tech', 'bestbuy'],
-    submitterId: 'user5',
-    submitter: { username: 'techdeals', avatarUrl: undefined },
-    upvotes: 156,
-    downvotes: 23,
-    createdAt: new Date('2024-01-11'),
-    updatedAt: new Date('2024-01-11'),
-    successRate: 87,
-    totalVotes: 179,
-    isExpired: false,
-    freshnessIndicator: 'Verified 30 minutes ago',
-  },
-  {
-    _id: '6',
-    brand: 'Macy\'s',
-    code: 'FASHION30',
-    description: '30% off fashion items',
-    tags: ['fashion', 'clothing', 'macys'],
-    expiresAt: new Date('2024-01-18'),
-    submitterId: 'user6',
-    submitter: { username: 'fashionista', avatarUrl: undefined },
-    upvotes: 67,
-    downvotes: 11,
-    createdAt: new Date('2024-01-10'),
-    updatedAt: new Date('2024-01-10'),
-    successRate: 86,
-    totalVotes: 78,
+    successRate: 89,
+    totalVotes: 73,
     isExpired: false,
     freshnessIndicator: 'Verified 4 hours ago',
   },
   {
-    _id: '7',
-    brand: 'Walmart',
-    code: 'SAVE15',
-    description: '15% off groceries and household items',
-    tags: ['grocery', 'household', 'walmart'],
-    submitterId: 'user7',
-    submitter: { username: 'savingspro', avatarUrl: undefined },
-    upvotes: 89,
-    downvotes: 18,
-    createdAt: new Date('2024-01-09'),
-    updatedAt: new Date('2024-01-09'),
-    successRate: 83,
-    totalVotes: 107,
+    _id: '5',
+    brand: 'Starbucks',
+    code: 'COFFEE20',
+    description: '20% off your next order',
+    tags: ['food', 'coffee', 'drinks'],
+    submitterId: 'user5',
+    submitter: { username: 'coffeelover', avatarUrl: undefined },
+    upvotes: 95,
+    downvotes: 10,
+    createdAt: new Date('2024-01-11'),
+    updatedAt: new Date('2024-01-11'),
+    successRate: 90,
+    totalVotes: 105,
     isExpired: false,
     freshnessIndicator: 'Verified 6 hours ago',
   },
   {
-    _id: '8',
-    brand: 'Home Depot',
-    code: 'DIY25',
-    description: '25% off DIY and home improvement',
-    tags: ['home', 'diy', 'improvement'],
-    expiresAt: new Date('2024-01-25'),
-    submitterId: 'user8',
-    submitter: { username: 'homeimprover', avatarUrl: undefined },
-    upvotes: 45,
-    downvotes: 9,
-    createdAt: new Date('2024-01-08'),
-    updatedAt: new Date('2024-01-08'),
-    successRate: 83,
-    totalVotes: 54,
+    _id: '6',
+    brand: 'H&M',
+    code: 'FASHION30',
+    description: '30% off new arrivals',
+    tags: ['fashion', 'clothing', 'style'],
+    submitterId: 'user6',
+    submitter: { username: 'fashionista', avatarUrl: undefined },
+    upvotes: 112,
+    downvotes: 18,
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-01-10'),
+    successRate: 86,
+    totalVotes: 130,
     isExpired: false,
     freshnessIndicator: 'Verified 8 hours ago',
-  },
+  }
 ];
 
 export default function HomePage() {
   const { data: session } = useSession();
   const [allCoupons, setAllCoupons] = useState<CouponWithStats[]>(mockCoupons);
-  const [loading, setLoading] = useState(false);
-  const [filters, setFilters] = useState<SearchFilters>({ sort: 'recent' });
+  const [filteredCoupons, setFilteredCoupons] = useState<CouponWithStats[]>(mockCoupons);
+  const [filters, setFilters] = useState<SearchFilters>({ sort: 'recent', page: 1, limit: 10 });
   const [searchQuery, setSearchQuery] = useState('');
-  const [workedForMeModal, setWorkedForMeModal] = useState({
+  const [loading, setLoading] = useState(false);
+  const [workedForMeModal, setWorkedForMeModal] = useState<{
+    isOpen: boolean;
+    coupon: CouponWithStats | null;
+  }>({
     isOpen: false,
-    coupon: null as any,
+    coupon: null,
   });
 
-  // Check for copied coupons on mount and show modal if needed
-  useEffect(() => {
-    const checkCopiedCoupons = () => {
-      try {
-        const copiedCoupons = JSON.parse(localStorage.getItem('copiedCoupons') || '[]');
-        const now = Date.now();
-        const recentCopies = copiedCoupons.filter((copy: any) => 
-          now - copy.timestamp < 24 * 60 * 60 * 1000 // Last 24 hours
-        );
-
-        // Find the most recent copy that hasn't been prompted
-        const unpromptedCopy = recentCopies.find((copy: any) => !copy.prompted);
-        
-        if (unpromptedCopy) {
-          // Mark as prompted
-          unpromptedCopy.prompted = true;
-          localStorage.setItem('copiedCoupons', JSON.stringify(copiedCoupons));
-          
-          // Show modal after a short delay
-          setTimeout(() => {
-            setWorkedForMeModal({
-              isOpen: true,
-              coupon: unpromptedCopy,
-            });
-          }, 2000); // 2 second delay
-        }
-      } catch (error) {
-        console.error('Error checking copied coupons:', error);
-      }
-    };
-
-    // Check on mount
-    checkCopiedCoupons();
-
-    // Set up interval to check periodically
-    const interval = setInterval(checkCopiedCoupons, 30000); // Check every 30 seconds
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // Filter and sort coupons based on search query and filters
-  const filteredAndSortedCoupons = useMemo(() => {
-    let filtered = allCoupons;
-
-    // Apply search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(coupon => 
-        coupon.brand.toLowerCase().includes(query) ||
-        coupon.description.toLowerCase().includes(query) ||
-        coupon.tags.some(tag => tag.toLowerCase().includes(query)) ||
-        coupon.code.toLowerCase().includes(query)
-      );
-    }
-
-    // Apply brand filter
-    if (filters.brand) {
-      filtered = filtered.filter(coupon => 
-        coupon.brand.toLowerCase() === filters.brand!.toLowerCase()
-      );
-    }
-
-    // Apply submitter filter
-    if (filters.submitter) {
-      filtered = filtered.filter(coupon => 
-        coupon.submitter?.username.toLowerCase().includes(filters.submitter!.toLowerCase())
-      );
-    }
-
-    // Apply sorting
+  // Sort and filter coupons
+  const sortedCoupons = useMemo(() => {
+    let sorted = [...filteredCoupons];
+    
     switch (filters.sort) {
       case 'popular':
-        filtered = [...filtered].sort((a, b) => b.successRate - a.successRate);
+        sorted.sort((a, b) => b.upvotes - a.upvotes);
         break;
       case 'expiring':
-        filtered = [...filtered].sort((a, b) => {
+        sorted.sort((a, b) => {
           if (!a.expiresAt && !b.expiresAt) return 0;
           if (!a.expiresAt) return 1;
           if (!b.expiresAt) return -1;
@@ -248,55 +149,143 @@ export default function HomePage() {
         break;
       case 'recent':
       default:
-        filtered = [...filtered].sort((a, b) => 
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+        sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         break;
     }
+    
+    return sorted;
+  }, [filteredCoupons, filters.sort]);
 
-    return filtered;
-  }, [allCoupons, searchQuery, filters]);
+  // Paginated coupons
+  const paginatedCoupons = useMemo(() => {
+    const startIndex = ((filters.page || 1) - 1) * (filters.limit || 10);
+    const endIndex = startIndex + (filters.limit || 10);
+    return sortedCoupons.slice(startIndex, endIndex);
+  }, [sortedCoupons, filters.page, filters.limit]);
+
+  // Check for "worked for me" prompts on mount
+  useEffect(() => {
+    const checkWorkedForMePrompts = () => {
+      const copiedCoupons = JSON.parse(localStorage.getItem('copiedCoupons') || '[]');
+      const now = Date.now();
+      const thirtySecondsAgo = now - 30000; // 30 seconds ago
+      
+      // Find coupons copied recently that haven't been prompted yet
+      const recentlyCopied = copiedCoupons.filter((copied: any) => 
+        copied.timestamp > thirtySecondsAgo && 
+        copied.timestamp < now - 5000 && // At least 5 seconds ago
+        !copied.prompted
+      );
+      
+      if (recentlyCopied.length > 0) {
+        const copiedCoupon = recentlyCopied[0];
+        const coupon = allCoupons.find(c => c._id === copiedCoupon.couponId);
+        
+        if (coupon) {
+          setWorkedForMeModal({ isOpen: true, coupon });
+          
+          // Mark as prompted
+          const updatedCopiedCoupons = copiedCoupons.map((copied: any) =>
+            copied.couponId === copiedCoupon.couponId 
+              ? { ...copied, prompted: true }
+              : copied
+          );
+          localStorage.setItem('copiedCoupons', JSON.stringify(updatedCopiedCoupons));
+        }
+      }
+    };
+
+    // Check immediately and then every 5 seconds
+    checkWorkedForMePrompts();
+    const interval = setInterval(checkWorkedForMePrompts, 5000);
+    
+    return () => clearInterval(interval);
+  }, [allCoupons]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    captureEvent(ANALYTICS_EVENTS.SEARCH_PERFORMED, { query });
-  };
-
-  const handleVote = async (couponId: string, worked: boolean) => {
-    // TODO: Implement voting API call
-    console.log('Vote:', couponId, worked);
+    setFilters(prev => ({ ...prev, page: 1 })); // Reset to first page
     
-    // Optimistic update
-    setAllCoupons(prev => prev.map(coupon => {
-      if (coupon._id === couponId) {
-        return {
-          ...coupon,
-          upvotes: worked ? coupon.upvotes + 1 : coupon.upvotes,
-          downvotes: worked ? coupon.downvotes : coupon.downvotes + 1,
-          successRate: Math.round(((worked ? coupon.upvotes + 1 : coupon.upvotes) / (coupon.totalVotes + 1)) * 100),
-          totalVotes: coupon.totalVotes + 1,
-        };
-      }
-      return coupon;
-    }));
-  };
-
-  const handleCopy = (couponId: string) => {
-    // TODO: Implement copy tracking
-    console.log('Copied coupon:', couponId);
+    if (!query.trim()) {
+      setFilteredCoupons(allCoupons);
+      return;
+    }
+    
+    const filtered = allCoupons.filter(coupon =>
+      coupon.brand.toLowerCase().includes(query.toLowerCase()) ||
+      coupon.description.toLowerCase().includes(query.toLowerCase()) ||
+      coupon.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+    );
+    
+    setFilteredCoupons(filtered);
+    
+    // Analytics
+    captureEvent(ANALYTICS_EVENTS.SEARCH_PERFORMED, {
+      query,
+      resultsCount: filtered.length,
+    });
   };
 
   const handleFiltersChange = (newFilters: SearchFilters) => {
-    setFilters(newFilters);
-    console.log('Filters changed:', newFilters);
+    setFilters(prev => ({ ...prev, ...newFilters }));
+  };
+
+  const handleVote = async (couponId: string, worked: boolean) => {
+    // Optimistic update
+    const updateCoupons = (coupons: CouponWithStats[]) =>
+      coupons.map(coupon => {
+        if (coupon._id === couponId) {
+          const newUpvotes = worked ? coupon.upvotes + 1 : coupon.upvotes;
+          const newDownvotes = worked ? coupon.downvotes : coupon.downvotes + 1;
+          const newTotalVotes = newUpvotes + newDownvotes;
+          const newSuccessRate = Math.round((newUpvotes / newTotalVotes) * 100);
+          
+          return {
+            ...coupon,
+            upvotes: newUpvotes,
+            downvotes: newDownvotes,
+            totalVotes: newTotalVotes,
+            successRate: newSuccessRate,
+            freshnessIndicator: worked ? 'Just verified' : coupon.freshnessIndicator,
+            lastVerifiedAt: worked ? new Date() : coupon.lastVerifiedAt,
+          };
+        }
+        return coupon;
+      });
+    
+    setAllCoupons(updateCoupons);
+    setFilteredCoupons(updateCoupons);
+    
+    // Analytics
+    captureEvent(ANALYTICS_EVENTS.COUPON_VOTED, {
+      couponId,
+      worked,
+      source: 'homepage',
+    });
+  };
+
+  const handleCopy = (couponId: string) => {
+    // Analytics
+    captureEvent(ANALYTICS_EVENTS.COUPON_COPIED, {
+      couponId,
+      source: 'homepage',
+    });
   };
 
   const handleWorkedForMeVote = (couponId: string, worked: boolean) => {
     handleVote(couponId, worked);
+    closeWorkedForMeModal();
   };
 
   const closeWorkedForMeModal = () => {
     setWorkedForMeModal({ isOpen: false, coupon: null });
+  };
+
+  const handleSignIn = () => {
+    // Import signIn from next-auth/react at the top of the component
+    import('next-auth/react').then(({ signIn }) => {
+      signIn('google', { callbackUrl: '/' });
+    });
   };
 
   return (
@@ -306,110 +295,162 @@ export default function HomePage() {
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Discover & Share the Best
-            <span className="text-primary-600"> Coupon Codes</span>
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-4">
+            Find the Best <span className="text-primary-600">Coupon Codes</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Join our community of savvy shoppers. Find verified coupon codes from top retailers, 
-            share your discoveries, and earn recognition on our leaderboard.
+            Join our community of savvy shoppers. Discover verified coupon codes, share your finds, 
+            and save money on your favorite brands.
           </p>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-            {session ? (
-              <Link 
-                href="/coupons/new"
-                className="flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-              >
-                <Plus className="w-5 h-5" />
-                <span>Add Your Coupon</span>
-              </Link>
-            ) : (
-              <Link 
-                href="/auth/signin"
-                className="flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-              >
-                <span>Get Started</span>
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-            )}
-            
-            <Link 
-              href="/leaderboard"
-              className="flex items-center space-x-2 bg-white border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-            >
-              <TrendingUp className="w-5 h-5" />
-              <span>View Leaderboard</span>
-            </Link>
+          {/* Quick Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-2xl mx-auto mb-8">
+            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+              <div className="text-3xl font-bold text-primary-600 mb-2">{allCoupons.length}</div>
+              <div className="text-gray-600">Active Coupons</div>
+            </div>
+            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+              <div className="text-3xl font-bold text-green-600 mb-2">
+                {Math.round(allCoupons.reduce((acc, coupon) => acc + coupon.successRate, 0) / allCoupons.length)}%
+              </div>
+              <div className="text-gray-600">Success Rate</div>
+            </div>
+            <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+              <div className="text-3xl font-bold text-blue-600 mb-2">
+                {allCoupons.reduce((acc, coupon) => acc + coupon.totalVotes, 0)}
+              </div>
+              <div className="text-gray-600">Community Votes</div>
+            </div>
           </div>
+          
+          {session ? (
+            <Link 
+              href="/coupons/new"
+              className="inline-flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-lg text-lg font-medium transition-colors"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Share Your First Coupon</span>
+            </Link>
+          ) : (
+            <button
+              onClick={handleSignIn}
+              className="inline-flex items-center space-x-2 bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-lg text-lg font-medium transition-colors"
+            >
+              <Star className="w-5 h-5" />
+              <span>Join the Community</span>
+            </button>
+          )}
         </div>
 
-        {/* Stats Section */}
+        {/* Featured Sections */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
-            <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Star className="w-6 h-6 text-green-600" />
+          {/* Trending Now */}
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div className="flex items-center space-x-3 mb-4">
+              <TrendingUp className="w-6 h-6 text-primary-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Trending Now</h3>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">{allCoupons.length}+</h3>
-            <p className="text-gray-600">Verified Coupons</p>
+            <div className="space-y-3">
+              {allCoupons
+                .sort((a, b) => b.upvotes - a.upvotes)
+                .slice(0, 3)
+                .map(coupon => (
+                  <Link
+                    key={coupon._id}
+                    href={`/brand/${encodeURIComponent(coupon.brand.toLowerCase())}`}
+                    className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="font-medium text-gray-900">{coupon.brand}</div>
+                    <div className="text-sm text-gray-600">{coupon.description}</div>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                        {coupon.successRate}% success
+                      </span>
+                      <span className="text-xs text-gray-500">{coupon.upvotes} votes</span>
+                    </div>
+                  </Link>
+                ))}
+            </div>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
-            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <TrendingUp className="w-6 h-6 text-blue-600" />
+
+          {/* Expiring Soon */}
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div className="flex items-center space-x-3 mb-4">
+              <Clock className="w-6 h-6 text-orange-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Expiring Soon</h3>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              {allCoupons.reduce((sum, coupon) => sum + coupon.totalVotes, 0)}+
-            </h3>
-            <p className="text-gray-600">Community Votes</p>
+            <div className="space-y-3">
+              {allCoupons
+                .filter(coupon => coupon.expiresAt)
+                .sort((a, b) => new Date(a.expiresAt!).getTime() - new Date(b.expiresAt!).getTime())
+                .slice(0, 3)
+                .map(coupon => (
+                  <Link
+                    key={coupon._id}
+                    href={`/brand/${encodeURIComponent(coupon.brand.toLowerCase())}`}
+                    className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="font-medium text-gray-900">{coupon.brand}</div>
+                    <div className="text-sm text-gray-600">{coupon.description}</div>
+                    <div className="text-xs text-orange-600 mt-1">
+                      Expires {new Date(coupon.expiresAt!).toLocaleDateString()}
+                    </div>
+                  </Link>
+                ))}
+            </div>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
-            <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <Clock className="w-6 h-6 text-purple-600" />
+
+          {/* Top Contributors */}
+          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+            <div className="flex items-center space-x-3 mb-4">
+              <Star className="w-6 h-6 text-yellow-600" />
+              <h3 className="text-lg font-semibold text-gray-900">Top Contributors</h3>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">
-              {Math.round(allCoupons.reduce((sum, coupon) => sum + coupon.successRate, 0) / allCoupons.length)}%
-            </h3>
-            <p className="text-gray-600">Success Rate</p>
+            <div className="space-y-3">
+              {['couponpro', 'dealfinder', 'sportslover'].map((username, index) => (
+                <Link
+                  key={username}
+                  href={`/user/${username}`}
+                  className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">
+                      {username.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-gray-900">{username}</div>
+                    <div className="text-xs text-gray-500">
+                      {index === 0 ? '245' : index === 1 ? '156' : '85'} rank score
+                    </div>
+                  </div>
+                  <div className="text-xl">
+                    {index === 0 ? '🏆' : index === 1 ? '🥈' : '🥉'}
+                  </div>
+                </Link>
+              ))}
+              <Link
+                href="/leaderboard"
+                className="block text-center text-primary-600 hover:text-primary-700 text-sm font-medium pt-2"
+              >
+                View Full Leaderboard →
+              </Link>
+            </div>
           </div>
         </div>
 
-        {/* Search Results Summary */}
-        {searchQuery && (
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-blue-800">
-              Search results for "<span className="font-semibold">{searchQuery}</span>": 
-              <span className="font-semibold ml-1">{filteredAndSortedCoupons.length}</span> coupon{filteredAndSortedCoupons.length !== 1 ? 's' : ''} found
-            </p>
-          </div>
-        )}
+        {/* Main Coupon Feed */}
+        <CouponFeed
+          coupons={paginatedCoupons}
+          loading={loading}
+          onVote={handleVote}
+          onCopy={handleCopy}
+          onFiltersChange={handleFiltersChange}
+          filters={filters}
+          total={sortedCoupons.length}
+          hasMore={paginatedCoupons.length < sortedCoupons.length}
+        />
 
-        {/* Featured Coupons Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
-              {searchQuery ? 'Search Results' : 'Latest Coupons'}
-            </h2>
-            <Link 
-              href="/coupons"
-              className="text-primary-600 hover:text-primary-700 font-medium flex items-center space-x-1"
-            >
-              <span>View All</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          
-          <CouponFeed
-            coupons={filteredAndSortedCoupons}
-            loading={loading}
-            onVote={handleVote}
-            onCopy={handleCopy}
-            onFiltersChange={handleFiltersChange}
-            filters={filters}
-            total={filteredAndSortedCoupons.length}
-          />
-        </div>
 
         {/* CTA Section */}
         {!session && (
@@ -419,13 +460,13 @@ export default function HomePage() {
               Join thousands of users who are already saving money with our community-verified coupon codes. 
               Sign up today and start sharing your discoveries!
             </p>
-            <Link 
-              href="/auth/signin"
+            <button 
+              onClick={handleSignIn}
               className="inline-flex items-center space-x-2 bg-white text-primary-600 px-6 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
             >
               <span>Join CouponCodeClub</span>
               <ArrowRight className="w-5 h-5" />
-            </Link>
+            </button>
           </div>
         )}
       </main>
@@ -434,7 +475,12 @@ export default function HomePage() {
       <WorkedForMeModal
         isOpen={workedForMeModal.isOpen}
         onClose={closeWorkedForMeModal}
-        coupon={workedForMeModal.coupon}
+        coupon={workedForMeModal.coupon ? {
+          couponId: workedForMeModal.coupon._id,
+          timestamp: Date.now(),
+          brand: workedForMeModal.coupon.brand,
+          code: workedForMeModal.coupon.code,
+        } : null}
         onVote={handleWorkedForMeVote}
       />
     </div>
