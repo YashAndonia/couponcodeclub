@@ -3,7 +3,9 @@ import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
 import clientPromise from '@/lib/mongodb-adapter';
 import { NextAuthOptions } from 'next-auth';
 import dbConnect from './mongodb';
-import { User } from './models/User';
+
+// Initialize models to ensure they're registered
+import { User } from './models/init';
 
 // Helper function to generate username from email
 function generateUsername(email: string): string {

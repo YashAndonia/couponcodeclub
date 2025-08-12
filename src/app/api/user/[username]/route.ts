@@ -1,7 +1,6 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
-import { User } from '@/lib/models/User';
-import { Coupon } from '@/lib/models/Coupon';
+import { User, Coupon } from '@/lib/models/init';
 import { sendSuccessResponse, sendErrorResponse, handleApiError, HTTP_STATUS } from '@/lib/utils/appApi';
 
 // GET /api/user/[username] - Get user profile and their coupons

@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
-import { User } from '@/lib/models/User';
+import { User } from '@/lib/models/init';
 import { sendSuccessResponse, sendErrorResponse, handleApiError, HTTP_STATUS } from '@/lib/utils/appApi';
 
 // GET /api/user/me - Get current user's profile
