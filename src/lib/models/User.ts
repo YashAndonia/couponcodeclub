@@ -1,10 +1,14 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
 export interface IUser extends Document {
-  username: string
+  // NextAuth fields
   email: string
   name: string
   image?: string
+  emailVerified?: Date
+  
+  // Our custom fields
+  username: string
   rankScore: number
   totalUpvotes: number
   totalDownvotes: number
@@ -13,14 +17,7 @@ export interface IUser extends Document {
 }
 
 const UserSchema = new Schema<IUser>({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    minlength: 3,
-    maxlength: 30
-  },
+  // NextAuth fields
   email: {
     type: String,
     required: true,
@@ -37,6 +34,19 @@ const UserSchema = new Schema<IUser>({
   image: {
     type: String,
     trim: true
+  },
+  emailVerified: {
+    type: Date
+  },
+  
+  // Our custom fields
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    minlength: 3,
+    maxlength: 30
   },
   rankScore: {
     type: Number,
@@ -62,4 +72,4 @@ UserSchema.index({ rankScore: -1, createdAt: -1 })
 
 // Remove the duplicate email index - unique: true already creates it
 
-export const User = mongoose.models.AppUser || mongoose.model<IUser>('AppUser', UserSchema) 
+export const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema) 

@@ -264,7 +264,7 @@ export default function UserProfile() {
                 {/* Join Date */}
                 <div className="flex items-center text-gray-600 mb-6">
                   <Calendar className="w-4 h-4 mr-2" />
-                  <span>Joined {new Date(user.createdAt).toLocaleDateString('en-US', { 
+                  <span>Joined {new Date(user.createdAt || user.updatedAt).toLocaleDateString('en-US', { 
                     month: 'long', 
                     year: 'numeric' 
                   })}</span>

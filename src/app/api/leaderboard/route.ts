@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import dbConnect from '@/lib/mongodb';
-import { User } from '@/lib/models/init';
+import { User } from '@/lib/models/User';
 import { sendSuccessResponse, sendErrorResponse, handleApiError } from '@/lib/utils/appApi';
 
 // GET /api/leaderboard - Get top users by rank score

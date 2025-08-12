@@ -4,8 +4,7 @@ import clientPromise from '@/lib/mongodb-adapter';
 import { NextAuthOptions } from 'next-auth';
 import dbConnect from './mongodb';
 
-// Initialize models to ensure they're registered
-import { User } from './models/init';
+import { User } from './models/User';
 
 // Helper function to generate username from email
 function generateUsername(email: string): string {
@@ -19,7 +18,15 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(clientPromise, {
+    databaseName: 'couponcodeclub',
+    collections: {
+      Users: 'users',
+      Accounts: 'accounts',
+      Sessions: 'sessions',
+      VerificationTokens: 'verificationtokens',
+    },
+  }),
   session: {
     strategy: 'jwt',
   },
@@ -36,8 +43,20 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id as string;
-        session.user.username = token.username as string;
+        // Fetch full user data including our custom fields
+        try {
+          await dbConnect();
+          const user = await User.findById(token.sub);
+          if (user) {
+            session.user.id = user._id.toString();
+            session.user.username = user.username;
+            session.user.rankScore = user.rankScore;
+            session.user.totalUpvotes = user.totalUpvotes;
+            session.user.totalDownvotes = user.totalDownvotes;
+          }
+        } catch (error) {
+          console.error('Error fetching user in session callback:', error);
+        }
       }
       return session;
     },
@@ -49,18 +68,10 @@ export const authOptions: NextAuthOptions = {
         try {
           await dbConnect();
           
-          // Check if user already exists in our AppUser collection
-          const existingUser = await User.findOne({ email: user.email });
-          
-          if (existingUser) {
-            console.log(`User already exists in AppUser collection: ${existingUser.username}`);
-            return;
-          }
-          
           // Generate username from email
           let username = generateUsername(user.email);
           
-          // Ensure username is unique in our collection
+          // Ensure username is unique
           let counter = 1;
           let finalUsername = username;
           while (await User.findOne({ username: finalUsername })) {
@@ -68,20 +79,17 @@ export const authOptions: NextAuthOptions = {
             counter++;
           }
           
-          // Create user in our AppUser collection
-          await User.create({
+          // Update the user with our custom fields
+          await User.findByIdAndUpdate(user.id, {
             username: finalUsername,
-            email: user.email,
-            name: user.name || 'User',
-            image: user.image,
             rankScore: 0,
             totalUpvotes: 0,
             totalDownvotes: 0,
           });
           
-          console.log(`Created user in AppUser collection: ${finalUsername}`);
+          console.log(`Updated user with custom fields: ${finalUsername}`);
         } catch (error) {
-          console.error('Error creating user in AppUser collection:', error);
+          console.error('Error updating user with custom fields:', error);
         }
       }
     },

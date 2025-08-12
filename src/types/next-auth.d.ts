@@ -8,12 +8,18 @@ declare module 'next-auth' {
       email?: string | null;
       image?: string | null;
       username?: string;
+      rankScore?: number;
+      totalUpvotes?: number;
+      totalDownvotes?: number;
     };
   }
 
   interface User {
     id: string;
     username?: string;
+    rankScore?: number;
+    totalUpvotes?: number;
+    totalDownvotes?: number;
   }
 }
 
