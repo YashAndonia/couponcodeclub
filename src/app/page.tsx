@@ -361,8 +361,24 @@ export default function HomePage() {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
+          {/* Coupon Feed */}
+          <CouponFeed
+            coupons={filteredCoupons}
+            loading={loading}
+            total={pagination.total}
+            onVote={handleVote}
+            onCopy={handleCopy}
+            onFiltersChange={handleFiltersChange}
+            filters={filters}
+            hasMore={pagination.page < pagination.pages}
+            onLoadMore={() => {
+              const nextPage = pagination.page + 1;
+              setFilters(prev => ({ ...prev, page: nextPage }));
+            }}
+          />
+
           {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
             <div className="bg-white rounded-lg shadow-sm p-6 text-center">
               <TrendingUp className="w-8 h-8 text-blue-600 mx-auto mb-2" />
               <h3 className="font-semibold text-gray-900">Trending Now</h3>
@@ -385,22 +401,6 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-
-          {/* Coupon Feed */}
-          <CouponFeed
-            coupons={filteredCoupons}
-            loading={loading}
-            total={pagination.total}
-            onVote={handleVote}
-            onCopy={handleCopy}
-            onFiltersChange={handleFiltersChange}
-            filters={filters}
-            hasMore={pagination.page < pagination.pages}
-            onLoadMore={() => {
-              const nextPage = pagination.page + 1;
-              setFilters(prev => ({ ...prev, page: nextPage }));
-            }}
-          />
         </div>
       </div>
 
