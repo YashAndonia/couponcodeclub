@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { Search, Menu, X, User, Plus } from 'lucide-react';
+import { useAnalytics } from '@/lib/hooks/useAnalytics';
 
 interface HeaderProps {
   onSearch?: (query: string) => void;
@@ -12,6 +13,7 @@ interface HeaderProps {
 
 export default function Header({ onSearch, searchQuery = '' }: HeaderProps) {
   const { data: session } = useSession();
+  const { trackSearchQuery, trackCustomEvent } = useAnalytics();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState(searchQuery);
 
@@ -22,6 +24,9 @@ export default function Header({ onSearch, searchQuery = '' }: HeaderProps) {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    if (searchValue.trim()) {
+      trackSearchQuery(searchValue.trim());
+    }
     onSearch?.(searchValue);
   };
 

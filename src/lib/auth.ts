@@ -88,10 +88,17 @@ export const authOptions: NextAuthOptions = {
           });
           
           console.log(`Updated user with custom fields: ${finalUsername}`);
+          
+          // Note: Analytics tracking for signup will be handled client-side
+          // when the user first signs in, as we don't have access to PostHog here
         } catch (error) {
           console.error('Error updating user with custom fields:', error);
         }
       }
+    },
+    async signIn({ user, account, profile }) {
+      // Track sign-in events (this runs on the server side)
+      console.log(`User signed in: ${user.email}`);
     },
   },
   pages: {

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Copy, Check, ThumbsUp, ThumbsDown, Clock, User, Tag, ExternalLink } from 'lucide-react';
 import { CouponWithStats } from '@/types/coupon';
-import { captureEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
+import { useAnalytics } from '@/lib/hooks/useAnalytics';
 import { getBrandLogoUrl, getBrandedPlaceholderUrl, getBrandColors } from '@/lib/brand-logos';
 
 interface CouponCardProps {
@@ -32,6 +32,7 @@ const BrandLogoFallback = ({ brandName }: { brandName: string }) => {
 };
 
 export default function CouponCard({ coupon, onVote, onCopy }: CouponCardProps) {
+  const { trackCouponCopy, trackVote } = useAnalytics();
   const [copied, setCopied] = useState(false);
   const [isVoting, setIsVoting] = useState(false);
   const [logoError, setLogoError] = useState(false);
@@ -56,11 +57,7 @@ export default function CouponCard({ coupon, onVote, onCopy }: CouponCardProps) 
       onCopy?.(coupon._id);
       
       // Analytics
-      captureEvent(ANALYTICS_EVENTS.COUPON_COPIED, {
-        couponId: coupon._id,
-        brand: coupon.brand,
-        successRate: coupon.successRate,
-      });
+      trackCouponCopy(coupon, 'coupon_card');
 
       // Store in localStorage for "worked for me" prompt
       const copiedCoupons = JSON.parse(localStorage.getItem('copiedCoupons') || '[]');
@@ -86,12 +83,7 @@ export default function CouponCard({ coupon, onVote, onCopy }: CouponCardProps) 
       onVote?.(coupon._id, worked);
       
       // Analytics
-      captureEvent(ANALYTICS_EVENTS.COUPON_VOTED, {
-        couponId: coupon._id,
-        brand: coupon.brand,
-        worked,
-        successRate: coupon.successRate,
-      });
+      trackVote(coupon, worked ? 'upvote' : 'downvote', 'coupon_card');
     } catch (error) {
       console.error('Failed to vote:', error);
     } finally {
