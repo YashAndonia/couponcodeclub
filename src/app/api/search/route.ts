@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     
     // Apply general rate limiting
     const clientId = getClientIdentifier(request);
-    await rateLimiters.general.enforceLimit(clientId);
+    // await rateLimiters.general.enforceLimit(clientId); // Disabled for now
     
     const { searchParams } = new URL(request.url);
     const q = searchParams.get('q');

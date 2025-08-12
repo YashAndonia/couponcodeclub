@@ -17,9 +17,9 @@ export async function POST(
   try {
     await dbConnect();
     
-    // Apply rate limiting
+    // Apply rate limiting for voting
     const clientId = getClientIdentifier(request);
-    await rateLimiters.voting.enforceLimit(clientId);
+    // await rateLimiters.voting.enforceLimit(clientId); // Disabled for now
     
     const { id } = params;
     const body = await request.json();

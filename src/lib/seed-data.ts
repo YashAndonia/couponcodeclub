@@ -12,6 +12,7 @@ const sampleUsers = [
   {
     username: 'sportslover',
     email: 'sports@example.com',
+    name: 'Sports Enthusiast',
     rankScore: 245,
     totalUpvotes: 150,
     totalDownvotes: 5,
@@ -19,6 +20,7 @@ const sampleUsers = [
   {
     username: 'dealfinder',
     email: 'deals@example.com',
+    name: 'Deal Hunter',
     rankScore: 156,
     totalUpvotes: 90,
     totalDownvotes: 12,
@@ -26,6 +28,7 @@ const sampleUsers = [
   {
     username: 'couponpro',
     email: 'pro@example.com',
+    name: 'Coupon Expert',
     rankScore: 98,
     totalUpvotes: 65,
     totalDownvotes: 8,

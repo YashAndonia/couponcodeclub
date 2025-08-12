@@ -62,4 +62,4 @@ UserSchema.index({ rankScore: -1, createdAt: -1 })
 
 // Remove the duplicate email index - unique: true already creates it
 
-export const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema) 
+export const User = mongoose.models.AppUser || mongoose.model<IUser>('AppUser', UserSchema) 

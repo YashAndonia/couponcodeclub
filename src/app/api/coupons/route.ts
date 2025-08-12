@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
 
     // Apply rate limiting for coupon submission
     const clientId = getClientIdentifier(request);
-    await rateLimiters.couponSubmission.enforceLimit(clientId);
+    // await rateLimiters.couponSubmission.enforceLimit(clientId); // Disabled for now
 
     const body = await request.json();
     

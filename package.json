@@ -16,7 +16,8 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:ci": "jest --ci --coverage --watchAll=false",
-    "seed": "npx tsx src/lib/seed-data.ts"
+    "seed": "npx tsx src/lib/seed-data.ts",
+    "migrate": "npx tsx src/lib/migrate-users.ts"
   },
   "dependencies": {
     "@next-auth/mongodb-adapter": "^1.1.3",

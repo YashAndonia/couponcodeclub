@@ -1,5 +1,3 @@
-import { Redis } from '@upstash/redis';
-import redis from '@/lib/redis'; // Changed from { redis }
 import { ApiError, HTTP_STATUS } from './appApi';
 
 export interface RateLimitConfig {
@@ -8,12 +6,12 @@ export interface RateLimitConfig {
   keyGenerator?: (identifier: string) => string;
 }
 
-export class RateLimiter {
-  private redis: Redis;
+// Simple in-memory rate limiter for development
+class MockRateLimiter {
   private config: RateLimitConfig;
+  private requests: Map<string, number[]> = new Map();
 
   constructor(config: RateLimitConfig) {
-    this.redis = redis;
     this.config = config;
   }
 
@@ -25,27 +23,32 @@ export class RateLimiter {
     const now = Date.now();
     const windowStart = now - this.config.windowMs;
 
-    // Get current requests in window
-    const requests = await this.redis.zrangebyscore(key, windowStart, '+inf');
+    // Get current requests for this identifier
+    const userRequests = this.requests.get(key) || [];
     
-    if (requests.length >= this.config.maxRequests) {
-      const oldestRequest = await this.redis.zrange(key, 0, 0, { withScores: true });
-      const resetTime = oldestRequest[0] ? oldestRequest[0].score + this.config.windowMs : now + this.config.windowMs;
-      
+    // Filter out old requests outside the window
+    const recentRequests = userRequests.filter(timestamp => timestamp > windowStart);
+    
+    if (recentRequests.length >= this.config.maxRequests) {
       return {
         allowed: false,
         remaining: 0,
-        resetTime
+        resetTime: now + this.config.windowMs
       };
     }
 
     // Add current request
-    await this.redis.zadd(key, { score: now, member: now.toString() });
-    await this.redis.expire(key, Math.ceil(this.config.windowMs / 1000));
+    recentRequests.push(now);
+    this.requests.set(key, recentRequests);
+
+    // Clean up old entries periodically
+    if (Math.random() < 0.1) { // 10% chance to clean up
+      this.cleanup();
+    }
 
     return {
       allowed: true,
-      remaining: this.config.maxRequests - requests.length - 1,
+      remaining: this.config.maxRequests - recentRequests.length,
       resetTime: now + this.config.windowMs
     };
   }
@@ -60,28 +63,44 @@ export class RateLimiter {
       );
     }
   }
+
+  private cleanup() {
+    const now = Date.now();
+    const entries = Array.from(this.requests.entries());
+    
+    for (const [key, timestamps] of entries) {
+      const windowStart = now - this.config.windowMs;
+      const recentRequests = timestamps.filter((timestamp: number) => timestamp > windowStart);
+      
+      if (recentRequests.length === 0) {
+        this.requests.delete(key);
+      } else {
+        this.requests.set(key, recentRequests);
+      }
+    }
+  }
 }
 
-// Pre-configured rate limiters
+// Pre-configured rate limiters using in-memory storage
 export const rateLimiters = {
-  // 10 requests per minute for general API
-  general: new RateLimiter({
-    windowMs: 60 * 1000, // 1 minute
-    maxRequests: 10
+  // 100 requests per 15 minutes for general API
+  general: new MockRateLimiter({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    maxRequests: 100
   }),
   
   // 5 coupon submissions per hour
-  couponSubmission: new RateLimiter({
+  couponSubmission: new MockRateLimiter({
     windowMs: 60 * 60 * 1000, // 1 hour
     maxRequests: 5,
-    keyGenerator: (identifier: string) => `rate_limit:coupon_submission:${identifier}`
+    keyGenerator: (identifier: string) => `submission:${identifier}`
   }),
   
   // 20 votes per hour
-  voting: new RateLimiter({
+  voting: new MockRateLimiter({
     windowMs: 60 * 60 * 1000, // 1 hour
     maxRequests: 20,
-    keyGenerator: (identifier: string) => `rate_limit:voting:${identifier}`
+    keyGenerator: (identifier: string) => `voting:${identifier}`
   })
 };
 
@@ -90,7 +109,7 @@ export const getClientIdentifier = (request: Request): string => {
   // In production, use proper IP detection
   const forwarded = request.headers.get('x-forwarded-for');
   const realIp = request.headers.get('x-real-ip');
-  const ip = forwarded?.split(',')[0] || realIp || 'unknown';
+  const ip = forwarded?.split(',')[0] || realIp || 'development-user';
   
   return ip;
 }; 
