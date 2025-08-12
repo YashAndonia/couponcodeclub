@@ -28,7 +28,8 @@ class ApiClient {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
-    const url = `${API_BASE_URL}/api${endpoint}`;
+    // Construct URL properly - if API_BASE_URL is empty, just use relative path
+    const url = API_BASE_URL ? `${API_BASE_URL}/api${endpoint}` : `/api${endpoint}`;
     
     const config: RequestInit = {
       headers: {
@@ -190,18 +191,16 @@ class ApiClient {
 // Export singleton instance
 export const apiClient = new ApiClient();
 
-// Export individual functions for convenience
-export const {
-  getCoupons,
-  createCoupon,
-  getCoupon,
-  updateCoupon,
-  deleteCoupon,
-  voteCoupon,
-  getUserProfile,
-  getPublicUserProfile,
-  getLeaderboard,
-  search,
-  getBrands,
-  getBrandDetails,
-} = apiClient; 
+// Export individual functions for convenience - bound to maintain 'this' context
+export const getCoupons = apiClient.getCoupons.bind(apiClient);
+export const createCoupon = apiClient.createCoupon.bind(apiClient);
+export const getCoupon = apiClient.getCoupon.bind(apiClient);
+export const updateCoupon = apiClient.updateCoupon.bind(apiClient);
+export const deleteCoupon = apiClient.deleteCoupon.bind(apiClient);
+export const voteCoupon = apiClient.voteCoupon.bind(apiClient);
+export const getUserProfile = apiClient.getUserProfile.bind(apiClient);
+export const getPublicUserProfile = apiClient.getPublicUserProfile.bind(apiClient);
+export const getLeaderboard = apiClient.getLeaderboard.bind(apiClient);
+export const search = apiClient.search.bind(apiClient);
+export const getBrands = apiClient.getBrands.bind(apiClient);
+export const getBrandDetails = apiClient.getBrandDetails.bind(apiClient); 
