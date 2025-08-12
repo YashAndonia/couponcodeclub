@@ -180,6 +180,43 @@ export default function HomePage() {
     }
   };
 
+  // Function to check for "worked for me" prompts
+  const checkForPrompts = () => {
+    try {
+      const copiedCoupons = JSON.parse(localStorage.getItem('copiedCoupons') || '[]');
+      const now = Date.now();
+      const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
+
+      // Find coupons copied in the last hour that haven't been prompted
+      const recentlyCopied = copiedCoupons.filter(
+        (item: any) => now - item.timestamp < oneHour && !item.prompted
+      );
+
+      if (recentlyCopied.length > 0) {
+        const couponToPrompt = recentlyCopied[0];
+        setWorkedForMeModal({
+          isOpen: true,
+          coupon: {
+            couponId: couponToPrompt.couponId,
+            brand: couponToPrompt.brand,
+            code: couponToPrompt.code,
+            timestamp: couponToPrompt.timestamp,
+          },
+        });
+
+        // Mark as prompted
+        const updatedCoupons = copiedCoupons.map((item: any) =>
+          item.couponId === couponToPrompt.couponId
+            ? { ...item, prompted: true }
+            : item
+        );
+        localStorage.setItem('copiedCoupons', JSON.stringify(updatedCoupons));
+      }
+    } catch (error) {
+      console.error('Error checking for prompts:', error);
+    }
+  };
+
   // Handle coupon copy
   const handleCopy = (couponId: string) => {
     const coupon = allCoupons.find(c => c._id === couponId);
@@ -190,6 +227,9 @@ export default function HomePage() {
         brand: coupon.brand,
         successRate: coupon.successRate,
       });
+      
+      // Check for prompts immediately after copying
+      setTimeout(checkForPrompts, 500); // Small delay to ensure localStorage is updated
     }
   };
 
@@ -210,44 +250,8 @@ export default function HomePage() {
 
   // Check for "worked for me" prompts on mount
   useEffect(() => {
-    const checkForPrompts = () => {
-      try {
-        const copiedCoupons = JSON.parse(localStorage.getItem('copiedCoupons') || '[]');
-        const now = Date.now();
-        const oneHour = 60 * 60 * 1000; // 1 hour in milliseconds
-
-        // Find coupons copied in the last hour that haven't been prompted
-        const recentlyCopied = copiedCoupons.filter(
-          (item: any) => now - item.timestamp < oneHour && !item.prompted
-        );
-
-        if (recentlyCopied.length > 0) {
-          const couponToPrompt = recentlyCopied[0];
-          setWorkedForMeModal({
-            isOpen: true,
-            coupon: {
-              couponId: couponToPrompt.couponId,
-              brand: couponToPrompt.brand,
-              code: couponToPrompt.code,
-              timestamp: couponToPrompt.timestamp,
-            },
-          });
-
-          // Mark as prompted
-          const updatedCoupons = copiedCoupons.map((item: any) =>
-            item.couponId === couponToPrompt.couponId
-              ? { ...item, prompted: true }
-              : item
-          );
-          localStorage.setItem('copiedCoupons', JSON.stringify(updatedCoupons));
-        }
-      } catch (error) {
-        console.error('Error checking for prompts:', error);
-      }
-    };
-
-    // Check for prompts after a short delay
-    const timer = setTimeout(checkForPrompts, 2000);
+    // Check for prompts immediately with a minimal delay to ensure page is ready
+    const timer = setTimeout(checkForPrompts, 100);
     return () => clearTimeout(timer);
   }, []);
 

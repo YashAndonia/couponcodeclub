@@ -44,12 +44,12 @@ export default function WorkedForMeModal({
 
       setHasVoted(true);
       
-      // Close modal after a short delay
+      // Close modal after a brief delay to show feedback
       setTimeout(() => {
         onClose();
         setHasVoted(false);
         setIsVoting(false);
-      }, 1500);
+      }, 800);
     } catch (error) {
       console.error('Failed to vote:', error);
       setIsVoting(false);
