@@ -11,6 +11,13 @@ if (!MONGODB_URI) {
  * in development. This prevents connections growing exponentially
  * during API Route usage.
  */
+declare global {
+  var mongoose: {
+    conn: typeof mongoose | null;
+    promise: Promise<typeof mongoose> | null;
+  };
+}
+
 let cached = global.mongoose;
 
 if (!cached) {
@@ -30,6 +37,7 @@ async function dbConnect() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      family: 4, // Force IPv4 DNS resolution to fix Node.js DNS issues
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
