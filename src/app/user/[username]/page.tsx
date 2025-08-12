@@ -22,7 +22,9 @@ export default function UserProfile() {
   const params = useParams();
   const username = params?.username as string;
   const [user, setUser] = useState<User | null>(null);
+  const [allUserCoupons, setAllUserCoupons] = useState<CouponWithStats[]>([]);
   const [userCoupons, setUserCoupons] = useState<CouponWithStats[]>([]);
+  const [showActiveOnly, setShowActiveOnly] = useState(true);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,7 +57,9 @@ export default function UserProfile() {
         }));
         
         setUser(userData);
-        setUserCoupons(transformedCoupons);
+        setAllUserCoupons(transformedCoupons);
+        // Initially show active coupons only
+        setUserCoupons(transformedCoupons.filter(coupon => !coupon.isExpired));
       } else {
         throw new Error(response.error || 'Failed to fetch user profile');
       }
@@ -140,18 +144,30 @@ export default function UserProfile() {
     }
   };
 
+  // Handle toggle between active and all coupons
+  const handleToggleActive = () => {
+    const newShowActiveOnly = !showActiveOnly;
+    setShowActiveOnly(newShowActiveOnly);
+    
+    if (newShowActiveOnly) {
+      setUserCoupons(allUserCoupons.filter(coupon => !coupon.isExpired));
+    } else {
+      setUserCoupons(allUserCoupons);
+    }
+  };
+
   // Calculate user stats
   const userStats = useMemo(() => {
     if (!user) return null;
     
-    const activeCoupons = userCoupons.filter(c => !c.isExpired).length;
-    const totalVotes = userCoupons.reduce((sum, c) => sum + c.totalVotes, 0);
-    const averageSuccessRate = userCoupons.length > 0 
-      ? Math.round(userCoupons.reduce((sum, c) => sum + c.successRate, 0) / userCoupons.length)
+    const activeCoupons = allUserCoupons.filter(c => !c.isExpired).length;
+    const totalVotes = allUserCoupons.reduce((sum, c) => sum + c.totalVotes, 0);
+    const averageSuccessRate = allUserCoupons.length > 0 
+      ? Math.round(allUserCoupons.reduce((sum, c) => sum + c.successRate, 0) / allUserCoupons.length)
       : 0;
     
     return {
-      totalCoupons: userCoupons.length,
+      totalCoupons: allUserCoupons.length,
       activeCoupons,
       totalVotes,
       averageSuccessRate,
@@ -159,7 +175,7 @@ export default function UserProfile() {
         ? Math.round((user.totalUpvotes / (user.totalUpvotes + user.totalDownvotes)) * 100)
         : 0
     };
-  }, [user, userCoupons]);
+  }, [user, allUserCoupons]);
 
   if (loading) {
     return (
@@ -310,12 +326,43 @@ export default function UserProfile() {
           {/* User's Coupons */}
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">
-                Shared Coupons
-              </h2>
-              <div className="text-sm text-gray-600">
-                {userStats?.activeCoupons || 0} active • {userStats?.totalCoupons || 0} total
+              <div className="flex items-center space-x-4">
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Shared Coupons
+                </h2>
+                <div className="text-sm text-gray-600">
+                  {userStats?.activeCoupons || 0} active • {userStats?.totalCoupons || 0} total
+                </div>
               </div>
+              
+              {/* Active/All Toggle */}
+              {allUserCoupons.length > 0 && (
+                <div className="flex items-center space-x-3">
+                  <span className="text-sm text-gray-600">Show:</span>
+                  <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                    <button
+                      onClick={handleToggleActive}
+                      className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                        showActiveOnly
+                          ? 'bg-white text-gray-900 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      Active
+                    </button>
+                    <button
+                      onClick={handleToggleActive}
+                      className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                        !showActiveOnly
+                          ? 'bg-white text-gray-900 shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900'
+                      }`}
+                    >
+                      All
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {userCoupons.length === 0 ? (
@@ -324,10 +371,20 @@ export default function UserProfile() {
                   <Trophy className="w-12 h-12 mx-auto" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No coupons shared yet
+                  {allUserCoupons.length === 0 
+                    ? 'No coupons shared yet'
+                    : showActiveOnly 
+                      ? 'No active coupons'
+                      : 'No coupons found'
+                  }
                 </h3>
                 <p className="text-gray-600">
-                  {user.username} hasn't shared any coupons with the community yet.
+                  {allUserCoupons.length === 0 
+                    ? `${user.username} hasn't shared any coupons with the community yet.`
+                    : showActiveOnly
+                      ? `${user.username} doesn't have any active coupons at the moment.`
+                      : 'Try adjusting your filter settings.'
+                  }
                 </p>
               </div>
             ) : (
