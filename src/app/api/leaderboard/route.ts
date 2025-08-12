@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const users = await User.find({})
       .sort({ rankScore: -1, totalUpvotes: -1 })
       .limit(limit)
-      .select('username rankScore totalUpvotes totalDownvotes joinDate avatarUrl')
+      .select('username rankScore totalUpvotes totalDownvotes createdAt avatarUrl')
       .lean();
 
     // Calculate badges and additional stats

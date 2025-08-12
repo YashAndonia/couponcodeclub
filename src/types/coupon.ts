@@ -38,7 +38,8 @@ export interface User {
   username: string;
   email: string;
   avatarUrl?: string;
-  joinDate: Date;
+  createdAt: Date;
+  updatedAt: Date;
   rankScore: number;
   totalUpvotes: number;
   totalDownvotes: number;

@@ -292,7 +292,7 @@ export default function Leaderboard() {
                                 {user.username}
                               </div>
                               <div className="text-sm text-gray-600">
-                                Joined {new Date(user.joinDate).toLocaleDateString()}
+                                Joined {new Date(user.createdAt).toLocaleDateString()}
                               </div>
                             </div>
                           </div>
