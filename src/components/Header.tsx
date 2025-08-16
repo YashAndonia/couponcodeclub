@@ -83,6 +83,14 @@ export default function Header({ onSearch, searchQuery = '' }: HeaderProps) {
             <Link href="/leaderboard" className="text-gray-600 hover:text-gray-900 transition-colors">
               Leaderboard
             </Link>
+            <a
+              href="https://www.reddit.com/r/couponcodeclub/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              Feedback
+            </a>
             
             {session ? (
               <div className="flex items-center space-x-4">
@@ -163,6 +171,14 @@ export default function Header({ onSearch, searchQuery = '' }: HeaderProps) {
               <Link href="/leaderboard" className="block text-gray-600 hover:text-gray-900">
                 Leaderboard
               </Link>
+              <a
+                href="https://www.reddit.com/r/couponcodeclub/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-gray-600 hover:text-gray-900"
+              >
+                Feedback
+              </a>
               
               {session ? (
                 <>
