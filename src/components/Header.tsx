@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { Search, Menu, X, User, Plus } from 'lucide-react';
@@ -47,9 +48,14 @@ export default function Header({ onSearch, searchQuery = '' }: HeaderProps) {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">C</span>
-            </div>
+            <Image
+              src="/logo.png"
+              alt="CouponCodeClub logo"
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded-lg object-cover"
+              priority
+            />
             <span className="text-xl font-bold text-gray-900">CouponCodeClub</span>
           </Link>
 
